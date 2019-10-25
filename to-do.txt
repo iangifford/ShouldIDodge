@@ -1,0 +1,8 @@
+TO DO LIST
+-Get the online data pulling working
+-Rearrange the slots on the results page to accommodate the advanced algorithm
+-implement advanced algorithm
+-Change data storage to not have 177 files (database perhaps?)
+
+-Tbh tkinter sucks, make a whole new GUI using better module
+-Make the package more compact and user-friendly to operate
