@@ -1,0 +1,7 @@
+{
+    "algorithm constants":
+    {
+        "basic power_base":250  #Formula for magnifying win% is ln((power_base^winrate)/(power_base^50)) + 50.
+                                #This formula was designed to best match the winrates to the outcomes of the sample game data set.
+    }
+}
