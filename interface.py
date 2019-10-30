@@ -6,6 +6,7 @@ from tkinter import ttk
 from loader import loader
 from tkinter import messagebox
 from algorithms import basiccalc
+from scrape import update_all_champ_data
 
 
 class interface:
@@ -176,20 +177,36 @@ class interface:
         button.grid(column=3, row=6)
 
         window.mainloop()
+
+
+
     #window: window to be putting this menu in
     def mainmenu(self,window):
         #For going to the champ select menu
+
         def goto_select():
             mainf.destroy()
             self.selectmenu(window)
+
+        def update_champ_data():
+            if not self.__locked:
+                self.__locked = True
+                progress = ttk.Progressbar(mainf, orient="horizontal", length=190,)
+                progress.pack()
+                update_all_champ_data(progress,window)
+                self.__locked = False
         #Prep Frame
         mainf = tkinter.Frame(window)
         mainf.pack(side="top")
-        button = tkinter.Button(mainf, text="Set up new game", fg="black", bg = "orchid3", highlightbackground = "firebrick4", activebackground = "orchid4", command=goto_select)
-        button.pack()
+        startbutton = tkinter.Button(mainf, text="Set up new game", fg="black", bg = "orchid3", highlightbackground = "firebrick4", activebackground = "orchid4", width = 20,command=goto_select)
+        startbutton.pack()
+        updatebutton = tkinter.Button(mainf, text="Update Champion Data", fg="black", bg="orchid3",highlightbackground="firebrick4", activebackground="orchid4", width = 20, command=update_champ_data)
+        updatebutton.pack()
+
         window.mainloop()
 
     def __init__(self):
+        self.__locked = False
         #Sets the window up and then heads to the main menu
         window = tkinter.Tk()
         window.title("Dodge")

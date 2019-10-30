@@ -6,51 +6,82 @@ import json
 import bs4 as soup
 import time
 
+import tkinter.ttk
 
 #Not currently working. It seems league data sites like to load their data from javascript, meaning it can't be scraped
 #like this. Looking for an endpoint instead by reverse engineering the javscript as well as contacting the sites.
 #champ: champion name to get data on
 #lane: lane name to get data for that champ in
-def scrape_winrate(champ):
+def scrape_stats(champ):
     try:
         cleaned_champ = sanitize_champ(champ)
-        r = requests.get("https://u.gg/lol/champions/" + cleaned_champ + "/build")
+        print(cleaned_champ)
+        champ_keys= get_champ_keys()
+        url = "https://stats2.u.gg/lol/1.1/rankings/9_21/ranked_solo_5x5/"+champ_keys[cleaned_champ]+"/1.2.6.json"
+        r = requests.get(url)
         if r.ok:
-            html = soup.BeautifulSoup(r.content, "lxml")
-            champ_data = html.find_all("div", class_="champion-ranking-stats")[0]
-
-            champ_winrate = champ_data.find_all("div", class_="win-rate")[0]
-            value = champ_winrate.find_all("div", class_="value")[0]
-            return float(value.text.strip("%"))
+            data = r.json()
+            #print(data)
         else:
-            print(str(r.reason))
+            print("status code: " + str(r.status_code))
             return -1
-    except:
-        print("exception")
+    except Exception as e:
+        print(e)
+
         return -1
+def get_champ_keys():
+    champ_keys = open("configs/champion_keys","r+")
+    data = json.load(champ_keys)
+    return data
+
 #Cleans a champs name for URL purposes
 #champ: Champ name to clean
 def sanitize_champ(champ):
-    cleaned = champ.strip().replace(" ","").replace("'","")
-    if cleaned == "Nunu&Willump":
-        return "Nunu"
+    cleaned = champ.strip().replace(" ","").replace("'","").replace(".","").lower()
+    if cleaned == "nunu&willump":
+        return "nunu"
+    elif cleaned == "wukong":
+        return "monkeyking"
     else:
         return cleaned
+
 #Replaces all of the files with updated versions.
-def update_all_champ_data():
-    for champion in open("configs/champions.txt", "r").readlines():
+def update_all_champ_data(progress,window):
+    champlist = open("configs/champions.txt", "r").readlines()
+    numchamps = len(champlist)
+
+    for champion in champlist:
         champion = champion.strip()
         built_data = {"primary_winrate_percent": 0, "matchups_top": None, "matchups_jungle": None, "matchups_mid": None,
                       "matchups_adc": None, "matchups_support": None}
-        print(champion)
-        winrate = scrape_winrate(champion)
-        while winrate == -1:
-            scrape_winrate(champion)
-            time.sleep(3)
+
+        winrate = scrape_stats(champion)
+        n = 0
+        while winrate == -1 and n<100:
+            scrape_stats(champion)
+            n+=1
+        if (n >= 100):
+            print("Failed loading " + champion)
         built_data["primary_winrate_percent"] = winrate
         out = open("champion_data/" + champion + ".json", "w+")
         json.dump(built_data, out)
         out.close()
+        progress['value'] += numchamps/190
+        window.update()
+    progress.pack_forget()
+def set_champ_keys():
 
+    r = requests.get("https://static.u.gg/assets/lol/riot_static/9.21.1/data/en_US/champion.json?v9.21.2")
 
-update_all_champ_data()
+    if r.ok:
+        f = open("configs/champion_keys","w+")
+        keys = {}
+        data = r.json()['data']
+        for champ in data.keys():
+            keys[sanitize_champ(champ)] = data[champ]['key']
+        json.dump(keys,f)
+        f.close()
+    else:
+        print(str(r.reason))
+        return -1
+set_champ_keys()
