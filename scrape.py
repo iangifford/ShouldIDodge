@@ -15,18 +15,29 @@ import tkinter.ttk
 def scrape_stats(champ):
     try:
         cleaned_champ = sanitize_champ(champ)
-        print(cleaned_champ)
+        #print(cleaned_champ)
         champ_keys= get_champ_keys()
-        url = "https://stats2.u.gg/lol/1.1/rankings/9_21/ranked_solo_5x5/"+champ_keys[cleaned_champ]+"/1.2.6.json"
+        key = champ_keys[cleaned_champ]
+        #print(key)
+        url = "https://stats2.u.gg/lol/1.1/rankings/9_21/ranked_solo_5x5/"+key+"/1.2.6.json"
+
         r = requests.get(url)
+
         if r.ok:
             data = r.json()
+            lanes = list(data["12"]["10"].keys())
+            #print(str(lanes))
+            lanewins = {}
+            for lane in lanes:
+                lanewins[lane] = data["12"]["10"][lane][0]/data["12"]["10"][lane][1]
+            return lanewins
+
             #print(data)
         else:
             print("status code: " + str(r.status_code))
             return -1
     except Exception as e:
-        print(e)
+        print("Exception:",e)
 
         return -1
 def get_champ_keys():
@@ -53,22 +64,48 @@ def update_all_champ_data(progress,window):
     for champion in champlist:
         champion = champion.strip()
         built_data = {"primary_winrate_percent": 0, "matchups_top": None, "matchups_jungle": None, "matchups_mid": None,
-                      "matchups_adc": None, "matchups_support": None}
+                      "matchups_adc": None, "matchups_support": None, "roles": None}
 
-        winrate = scrape_stats(champion)
+        winrates = scrape_stats(champion)
         n = 0
-        while winrate == -1 and n<100:
+        while winrates == -1 and n<100:
             scrape_stats(champion)
             n+=1
         if (n >= 100):
             print("Failed loading " + champion)
-        built_data["primary_winrate_percent"] = winrate
+        roles = get_roles()
+        keys = get_champ_keys()
+        while(roles == -1):
+            roles = get_roles()
+        built_data["roles"] = roles[keys[sanitize_champ(champion)]]
+        #print(built_data["roles"])
+        built_data["matchups_top"] = winrates["4"]
+        built_data["matchups_jungle"] = winrates["1"]
+        built_data["matchups_mid"] = winrates["5"]
+        built_data["matchups_adc"] = winrates["3"]
+        built_data["matchups_support"] = winrates["2"]
+        built_data["primary_winrate_percent"] = winrates[str(built_data["roles"][0])]
         out = open("champion_data/" + champion + ".json", "w+")
         json.dump(built_data, out)
         out.close()
         progress['value'] += numchamps/190
         window.update()
     progress.pack_forget()
+def get_roles():
+    try:
+        url = "https://stats2.u.gg/lol/1.1/primary_roles/9_21/1.2.6.json"
+        r = requests.get(url)
+        if r.ok:
+            data = r.json()
+            return data
+            #print(data)
+        else:
+            print("status code: " + str(r.status_code))
+            return -1
+    except Exception as e:
+        print("Exception:",e)
+
+        return -1
 def set_champ_keys():
 
     r = requests.get("https://static.u.gg/assets/lol/riot_static/9.21.1/data/en_US/champion.json?v9.21.2")
