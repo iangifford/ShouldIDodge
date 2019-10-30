@@ -1,0 +1,64 @@
+This file is a human readable notation of how U.GG's horrible, unlabeled json files are keyed. 
+For some reason, their files only have numbers as keys.
+overall structure:
+data
+  division
+    lanes
+      0
+      1
+      2
+      3
+      4
+      5
+      6
+      7
+      8
+      9
+      10
+      11
+      12
+        champ_data
+          champ_key
+          wins(enemy)
+          total matches
+      13
+
+
+lanes:
+  1:jg
+  2:supp
+  3:adc
+  4:top
+  5:mid
+
+ranks:
+  1:challenger
+  2:master
+  3:diamond
+  4:platinum
+  5:gold
+  6:silver
+  7:bronze
+  8:all ranks
+  9:N/A
+  10:platinum+
+  11:diamond+
+  12:N/A
+  13:grandmaster
+  14:master+
+ 
+data:
+  1:
+  2:
+  3:
+  4:
+  5:
+  6:
+  7:
+  8:
+  9:
+  10:
+  11:
+  12: matches won/matches
+
+  
