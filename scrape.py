@@ -29,7 +29,7 @@ def scrape_stats(champ):
             #print(str(lanes))
             lanewins = {}
             for lane in lanes:
-                lanewins[lane] = data["12"]["10"][lane][0]/data["12"]["10"][lane][1]
+                lanewins[lane] = 100*(data["12"]["10"][lane][0]/data["12"]["10"][lane][1])
             return lanewins
 
             #print(data)

@@ -12,7 +12,7 @@ def basiccalc(blue, red):
     bluewins = []
     for item in blue:
         try:
-            f = open("champion_data/" + item.strip() + "\n" + ".json", "r")
+            f = open("champion_data/" + item.strip() + ".json", "r")
             data = json.load(f)
             bluewins.append(str(data['primary_winrate_percent']))
             f.close()
@@ -22,7 +22,7 @@ def basiccalc(blue, red):
     redwins = []
     for item in red:
         try:
-            f = open("champion_data/" + item.strip() + "\n" + ".json", "r")
+            f = open("champion_data/" + item.strip() + ".json", "r")
             data = json.load(f)
             redwins.append(str(data['primary_winrate_percent']))
             f.close()
