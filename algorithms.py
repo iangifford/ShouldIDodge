@@ -78,8 +78,8 @@ def advancedcalc(blue, red):
         lane_matchups = data["matchups"][ugg_lane]
         found = False
         for set in lane_matchups:
-            print(redkeys[i])
-            print(set[0])
+            #print(redkeys[i])
+            #print(set[0])
             if set[0] == int(redkeys[i]):
                 found = True
                 print("found!")
@@ -106,11 +106,10 @@ def advancedcalc(blue, red):
             bluenums.append(float(item))
 
     results = []
-    rednums = [50,50,50,50,50]
     redwins = ["50","50","50","50","50"]
     results.extend(bluewins)
 
-    results.append(algorithm_basic(bluenums, rednums))
+    results.append(algorithm_advanced(bluenums))
 
     results.extend(redwins)
     #print(results)
@@ -128,10 +127,12 @@ def algorithm_basic(blue_winrates, red_winrates):
     power_base = l.getAlgorithmConstants()['basic power_base']
     divisor = power_base ** 50
     for i in range(len(weights)):
-        blue_winrates[i] = math.log((power_base ** blue_winrates[i]) / divisor) + 50
-        red_winrates[i] = math.log((power_base ** red_winrates[i]) / divisor) + 50
+        blue_winrates[i] = math.log((power_base ** blue_winrates[i]) / divisor)
+        red_winrates[i] = math.log((power_base ** red_winrates[i]) / divisor)
         blue_winrates[i] *= weights[i]
         red_winrates[i] *= weights[i]
+        blue_winrates[i] += 50
+        red_winrates[i] += 50
     blue_tot = 0
     for item in blue_winrates:
         blue_tot += item
@@ -143,3 +144,21 @@ def algorithm_basic(blue_winrates, red_winrates):
     total = blue_tot + red_tot
 
     return 100*blue_tot / total
+
+def algorithm_advanced(blue_winrates):
+    l = loader()
+    weights = l.getLaneWeights()
+    power_base = l.getAlgorithmConstants()['basic power_base']
+    divisor = power_base ** 50
+    for i in range(len(weights)):
+        blue_winrates[i] = math.log((power_base ** blue_winrates[i]) / divisor) + 50
+        blue_winrates[i] *= weights[i]
+    print(blue_winrates)
+    blue_tot = 0
+    for item in blue_winrates:
+        blue_tot += item
+
+
+
+    return blue_tot / 5
+
