@@ -28,18 +28,20 @@ def scrape_stats(champ):
             lanes = list(data["12"]["10"].keys())
             #print(str(lanes))
             lanewins = {}
+            matchups = {"1":None,"2":None,"3":None,"4":None,"5":None}
             for lane in lanes:
                 lanewins[lane] = 100*(data["12"]["10"][lane][0]/data["12"]["10"][lane][1])
-            return lanewins
+                matchups[lane] = data["12"]["10"][lane][12]
 
+            return lanewins,matchups
             #print(data)
         else:
             print("status code: " + str(r.status_code))
-            return -1
+            return (-1, -1)
     except Exception as e:
         print("Exception:",e)
 
-        return -1
+        return (-1, -1)
 def get_champ_keys():
     champ_keys = open("configs/champion_keys","r+")
     data = json.load(champ_keys)
@@ -63,13 +65,16 @@ def update_all_champ_data(progress,window):
 
     for champion in champlist:
         champion = champion.strip()
-        built_data = {"primary_winrate_percent": 0, "matchups_top": None, "matchups_jungle": None, "matchups_mid": None,
-                      "matchups_adc": None, "matchups_support": None, "roles": None}
+        built_data = {"primary_winrate_percent": 0,
+                      "winrate_top": None, "winrate_jungle": None, "winrate_mid": None,
+                      "winrate_adc": None, "winrate_support": None, "roles": None,
+                      "matchups_top":None,"matchups_jungle":None,"matchups_mid":None,
+                      "matchups_adc":None,"matchups_support":None}
 
-        winrates = scrape_stats(champion)
+        winrates,matchups = scrape_stats(champion)
         n = 0
         while winrates == -1 and n<100:
-            scrape_stats(champion)
+            winrates,matchups = scrape_stats(champion)
             n+=1
         if (n >= 100):
             print("Failed loading " + champion)
@@ -79,11 +84,16 @@ def update_all_champ_data(progress,window):
             roles = get_roles()
         built_data["roles"] = roles[keys[sanitize_champ(champion)]]
         #print(built_data["roles"])
-        built_data["matchups_top"] = winrates["4"]
-        built_data["matchups_jungle"] = winrates["1"]
-        built_data["matchups_mid"] = winrates["5"]
-        built_data["matchups_adc"] = winrates["3"]
-        built_data["matchups_support"] = winrates["2"]
+        built_data["winrate_top"] = winrates["4"]
+        built_data["winrate_jungle"] = winrates["1"]
+        built_data["winrate_mid"] = winrates["5"]
+        built_data["winrate_adc"] = winrates["3"]
+        built_data["winrate_support"] = winrates["2"]
+        built_data["matchups_top"] = matchups["4"]
+        built_data["matchups_jungle"] = matchups["1"]
+        built_data["matchups_mid"] = matchups["5"]
+        built_data["matchups_adc"] = matchups["3"]
+        built_data["matchups_support"] = matchups["2"]
         built_data["primary_winrate_percent"] = winrates[str(built_data["roles"][0])]
         out = open("champion_data/" + champion + ".json", "w+")
         json.dump(built_data, out)
