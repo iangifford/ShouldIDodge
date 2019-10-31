@@ -5,7 +5,7 @@ import tkinter
 from tkinter import ttk
 from loader import loader
 from tkinter import messagebox
-from algorithms import basiccalc
+from algorithms import basiccalc, advancedcalc
 from scrape import update_all_champ_data
 
 
@@ -13,6 +13,44 @@ class interface:
     #The menu where you pick what teams are what champs.
     #window: window to be putting this menu in
     def selectmenu(self, window):
+        #Function to click when you want to lock in your selections and do basic algorithm
+        def confirmbasic():
+            ready = True
+            blue = [btop.get(), bjg.get(), bmid.get(), badc.get(), bsup.get()]
+            red = [rtop.get(), rjg.get(), rmid.get(), radc.get(), rsup.get()]
+            for item in blue:
+                if item == "":
+                    ready = False
+            for item in red:
+                if item == "":
+                    ready = False
+            #Prevents empty boxes
+            if ready == False:
+                messagebox.showinfo("Error", "Please select all 10 champions.")
+            else:
+                selectframe.destroy()
+                self.calcscreenbasic(blue, red, window)
+            #print(btop.get(), bjg.get(), bmid.get(), badc.get(), bsup.get())
+
+        # Function to click when you want to lock in your selections and do advanced algorithm
+        def confirmadvanced():
+            ready = True
+            blue = [btop.get(), bjg.get(), bmid.get(), badc.get(), bsup.get()]
+            red = [rtop.get(), rjg.get(), rmid.get(), radc.get(), rsup.get()]
+            for item in blue:
+                if item == "":
+                    ready = False
+            for item in red:
+                if item == "":
+                    ready = False
+            # Prevents empty boxes
+            if ready == False:
+                messagebox.showinfo("Error", "Please select all 10 champions.")
+            else:
+                selectframe.destroy()
+                self.calcscreenbasic(blue, red, window)
+            #print(btop.get(), bjg.get(), bmid.get(), badc.get(), bsup.get())
+
         #Preparing
         l = loader()
         champs = l.getChamps()
@@ -52,24 +90,6 @@ class interface:
         radc.set(champs[0])
         rsup = tkinter.StringVar(selectframe)
         rsup.set(champs[0])
-        #Function to click when you want to lock in your selections
-        def ok():
-            ready = True
-            blue = [btop.get(), bjg.get(), bmid.get(), badc.get(), bsup.get()]
-            red = [rtop.get(), rjg.get(), rmid.get(), radc.get(), rsup.get()]
-            for item in blue:
-                if item == "":
-                    ready = False
-            for item in red:
-                if item == "":
-                    ready = False
-            #Prevents empty boxes
-            if ready == False:
-                messagebox.showinfo("Error", "Please select all 10 champions.")
-            else:
-                selectframe.destroy()
-                self.calcscreen(blue, red, window)
-            print(btop.get(), bjg.get(), bmid.get(), badc.get(), bsup.get())
         #Lane labels
         tkinter.Label(selectframe, text="Top",fg="black", bg = "orchid3", highlightbackground = "firebrick4", activebackground = "orchid4",bd = 1).grid(row=1, column=1)
         tkinter.Label(selectframe, text="Jungle",fg="black", bg = "orchid3", highlightbackground = "firebrick4", activebackground = "orchid4",bd = 1).grid(row=2, column=1)
@@ -98,15 +118,17 @@ class interface:
         ra.grid(row=4, column=2)
         rs = ttk.Combobox(selectframe, values=champs, textvariable=rsup)
         rs.grid(row=5, column=2)
-        #Select button
-        button = tkinter.Button(selectframe, text="OK", command=ok,fg="black", bg = "orchid3", highlightbackground = "firebrick4", activebackground = "orchid4",bd = 1)
+        #Select buttons
+        button = tkinter.Button(selectframe, text="Basic Calculation", command=confirmbasic, fg="black", bg ="orchid3", highlightbackground ="firebrick4", activebackground ="orchid4", bd = 1)
         button.grid(row=6, column=1)
+        button = tkinter.Button(selectframe, text="Advanced Calculation", command=confirmadvanced, fg="black", bg ="orchid3", highlightbackground ="firebrick4", activebackground ="orchid4", bd = 1)
+        button.grid(row=7, column=1)
         window.mainloop()
     #window: window to be putting this menu in
     #Screen to show the calculations of the program on how likely you are to win.
-    def calcscreen(self, blue, red, window):
+    def calcscreenbasic(self, blue, red, window):
         #Frame preparation
-        results = basiccalc(blue, red)
+        results = advancedcalc(blue, red)
         results_nice = []
         for item in results:
             results_nice.append(str(item) + "%")
